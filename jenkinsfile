@@ -44,7 +44,31 @@ stages{
             )
         }
     } 
-    stage('')   
+    def registry ='http://-----.jfrog.io'
+    stage("jar publish"){
+      script{
+             echo '<--------jarpublish start------->'
+              def server = Artifactory.newserver url:registry+"/artifactory", credentails:"ogartifact-credentials"
+              def properties ="buildid=${env.BUILD-ID},commitid=${GIT_COMMIT}";
+              def uploadspec ="""{
+                       "files":[
+                         {
+                          "pattern": "jarstaging/(*)",
+                          "target": "libs-release-local/{1}",
+                          "flat": "false",  
+                          "props": "${properties}",
+                          "exclusions": ["*shell","*.md5"] 
+                          }  
+                               ]               
+                                 }"""
+             def buildInfo = server.upload(uploadspec)
+             buildInfo.env.collect()
+             server.publishbuildInfo(buildInfo)
+             ech0'<-------------jarpublish Ended------------->' 
+             }    
+
+     }
+   
 }
 
 }
