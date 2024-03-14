@@ -68,7 +68,22 @@ stages{
              }    
 
      }
-   
+   stage("Docker build")
+       script{
+         echo'-------------Docker build start---------'
+         app = docker.build(imageName+":"+version)
+         echo'-------------Docker build ends---------'   
+            }
+    stage ("Docker publish"){
+        script{
+            echo'-------------Docker pulish start---------'
+            docker.withRegistry(registry, 'jfrogartifact-credentils')
+            {
+            app.push()
+            }
+            echo'-------------Docker pulish ended---------'
+            }
+    }
 }
 
 }
