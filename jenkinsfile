@@ -1,0 +1,21 @@
+pipeline{
+    agent{label'maven'}
+
+environment {
+    PATH = "/OPT/apache-maven-3,9.4 /bin:$path"
+}
+stages{
+    stage('Checkout') {
+            steps {
+                checkout scm 
+            }
+        }
+    stage('build') {
+             steps{
+                sh 'mvn clean deploy'
+
+            }
+        }
+}
+
+}
