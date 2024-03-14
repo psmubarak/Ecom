@@ -12,10 +12,29 @@ stages{
         }
     stage('build') {
              steps{
-                sh 'mvn clean deploy'
+                echo"-----build stated ----"
+                sh 'mvn clean deploy -Dmaven.test.skip=true'
+                echo "--------build completed ---"
 
             }
         }
+    stage('test'){
+              steps{
+                echo "------unit test started -----"
+                sh'mvn surefile-report:report'
+                echo "-------unit test completed ---"
+                
+              }
+       }    
+    stage('sonarQube analysis'){
+    environment{
+        scannerHome = 'namg-snor-scanner'//sonar scanner name should be as what we have defined in the tool.
+    withsonarQubeEnv{'namg-sonarqube-server'}{
+        sh "${scannerhome}/bon/sonar-scanner"//this is going to communicate with our sonrqube server and send the analysis report.
+    }
+    } 
+
+    }     
 }
 
 }
