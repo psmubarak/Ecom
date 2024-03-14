@@ -32,9 +32,19 @@ stages{
     withsonarQubeEnv{'namg-sonarqube-server'}{
         sh "${scannerhome}/bon/sonar-scanner"//this is going to communicate with our sonrqube server and send the analysis report.
     }
+               } 
     } 
-
-    }     
+    stage('Quality gate'){
+        script {
+            timeout(time:1,unit:'hours'{
+                def qg=waitForQualityGate()
+                if(qg.status !='ok')
+                error" pipeline aborted due to quality gara failure" ${qg.status}
+            }
+            )
+        }
+    } 
+    stage('')   
 }
 
 }
