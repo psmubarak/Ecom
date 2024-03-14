@@ -1,107 +1,110 @@
-package com.ecom.model;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-public class SparePart {
-    private long id;
+@Entity
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String name;
-    private String vehicleType;
+    private String description;
     private double price;
 
-    
-}
-package com.ecom.dao;
+    // Getters and setters (constructor omitted for brevity)
 
-import com.ecom.model.SparePart;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+}
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
+}
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public interface SparePartDAO {
-    List<SparePart> getAllSpareParts();
-    SparePart getSparePartById(long id);
-    void addSparePart(SparePart sparePart);
-    void updateSparePart(SparePart sparePart);
-    void deleteSparePart(long id);
-}
-package com.ecom.service;
+@Service
+public class ProductService {
+    @Autowired
+    private ProductRepository productRepository;
 
-import com.ecom.model.SparePart;
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    public Product getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public Product saveProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
+    }
+}
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-public interface SparePartService {
-    List<SparePart> getAllSpareParts();
-    SparePart getSparePartById(long id);
-    void addSparePart(SparePart sparePart);
-    void updateSparePart(SparePart sparePart);
-    void deleteSparePart(long id);
-}
-package com.ecom.controller;
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+    @Autowired
+    private ProductService productService;
 
-import com.ecom.model.SparePart;
-import com.ecom.service.SparePartService;
-
-import java.util.List;
-
-public class SparePartController {
-    private final SparePartService sparePartService;
-
-    public SparePartController(SparePartService sparePartService) {
-        this.sparePartService = sparePartService;
+    @GetMapping
+    public List<Product> getAllProducts() {
+        return productService.getAllProducts();
     }
 
-    public List<SparePart> getAllSpareParts() {
-        return sparePartService.getAllSpareParts();
+    @GetMapping("/{id}")
+    public Product getProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
     }
 
-    public SparePart getSparePartById(long id) {
-        return sparePartService.getSparePartById(id);
+    @PostMapping
+    public Product saveProduct(@RequestBody Product product) {
+        return productService.saveProduct(product);
     }
 
-    public void addSparePart(SparePart sparePart) {
-        sparePartService.addSparePart(sparePart);
-    }
-
-    public void updateSparePart(SparePart sparePart) {
-        sparePartService.updateSparePart(sparePart);
-    }
-
-    public void deleteSparePart(long id) {
-        sparePartService.deleteSparePart(id);
-    }
-}
-package com.ecom.ui;
-
-import com.ecom.controller.SparePartController;
-import com.ecom.model.SparePart;
-
-import java.util.Scanner;
-
-public class ConsoleUI {
-    private final SparePartController sparePartController;
-    private final Scanner scanner;
-
-    public ConsoleUI(SparePartController sparePartController) {
-        this.sparePartController = sparePartController;
-        this.scanner = new Scanner(System.in);
-    }
-
-
-}
-package com.ecom;
-
-import com.ecom.controller.SparePartController;
-import com.ecom.dao.SparePartDAO;
-import com.ecom.dao.SparePartDAOImpl;
-import com.ecom.service.SparePartService;
-import com.ecom.service.SparePartServiceImpl;
-import com.ecom.ui.ConsoleUI;
-
-public class Main {
-    public static void main(String[] args) {
-        SparePartDAO sparePartDAO = new SparePartDAOImpl(); // Implement this DAO
-        SparePartService sparePartService = new SparePartServiceImpl(sparePartDAO);
-        SparePartController sparePartController = new SparePartController(sparePartService);
-        ConsoleUI consoleUI = new ConsoleUI(sparePartController);
-        
-    
+    @DeleteMapping("/{id}")
+    public void deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
     }
 }
